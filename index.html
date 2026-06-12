@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>MurinoFM</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            min-height: 100vh;
+            background-image: url('bg.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        }
+
+        .radio {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            z-index: 10;
+        }
+
+        /* анимированный заголовок */
+        .animated-title {
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .animated-title h1 {
+            font-size: 3.2rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #FFD89B, #C7A05C, #FFB347, #FFD89B);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            animation: gradientShift 3s ease infinite;
+            letter-spacing: 4px;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* чёрный круг */
+        .vinyl {
+            width: 320px;
+            height: 320px;
+            background: radial-gradient(circle at 35% 35%, #2c2c2c, #000000);
+            border-radius: 50%;
+            box-shadow: 0 25px 45px rgba(0,0,0,0.8), 0 0 0 5px rgba(255,200,100,0.2), inset 0 0 30px rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.1s ease;
+            position: relative;
+        }
+
+        .vinyl:active {
+            transform: scale(0.98);
+        }
+
+        .disc {
+            width: 90%;
+            height: 90%;
+            background: #111;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
+        }
+
+        .center-img {
+            width: 55%;
+            height: 55%;
+            background-image: url('logo.jpg');
+            background-size: cover;
+            background-position: center;
+            border-radius: 50%;
+            box-shadow: 0 0 0 4px #ffcc66, inset 0 0 0 2px rgba(0,0,0,0.6);
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .rotating {
+            animation: spin 8s linear infinite;
+        }
+
+        /* ползунок громкости сбоку */
+        .volume-side {
+            position: absolute;
+            right: -45px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(20,20,30,0.6);
+            backdrop-filter: blur(12px);
+            padding: 15px 8px;
+            border-radius: 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            border: 1px solid rgba(255,200,100,0.3);
+        }
+
+        .volume-side span {
+            font-size: 1.2rem;
+            color: #ffcc66;
+        }
+
+        input[type="range"] {
+            writing-mode: bt-lr;
+            -webkit-appearance: slider-vertical;
+            width: 6px;
+            height: 120px;
+            background: #333;
+            border-radius: 10px;
+            outline: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            background: #ffcc66;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 0 5px gold;
+        }
+
+        /* индикатор LIVE */
+        .live-dot {
+            margin-top: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.7rem;
+            font-weight: 500;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(8px);
+            padding: 6px 15px;
+            border-radius: 30px;
+            color: white;
+        }
+
+        .dot {
+            width: 10px;
+            height: 10px;
+            background: #ff3300;
+            border-radius: 50%;
+            box-shadow: 0 0 6px red;
+            animation: pulse 1.2s infinite;
+        }
+
+        .dot.muted {
+            background: #555;
+            box-shadow: none;
+            animation: none;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.4; transform: scale(0.9);}
+            100% { opacity: 1; transform: scale(1.2);}
+        }
+
+        /* ЯРКИЕ КНОПКИ */
+        .buttons-group {
+            margin-top: 25px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            width: 100%;
+            align-items: center;
+        }
+
+        .action-btn {
+            background: linear-gradient(135deg, #2a2a2a, #1a1a1a);
+            border: 2px solid #ffcc66;
+            color: #ffcc66;
+            padding: 12px 28px;
+            border-radius: 60px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(8px);
+            letter-spacing: 0.8px;
+            width: 260px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        .action-btn:hover {
+            background: rgba(255, 200, 100, 0.2);
+            transform: scale(1.03);
+            box-shadow: 0 0 15px rgba(255, 200, 100, 0.5);
+            border-color: #ffdd88;
+            color: #ffdd88;
+        }
+
+        .action-btn:active {
+            transform: scale(0.98);
+        }
+
+        .start-hint {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.85);
+            color: #ffcc66;
+            padding: 8px 20px;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            backdrop-filter: blur(10px);
+            pointer-events: none;
+            white-space: nowrap;
+            font-weight: 500;
+            border: 1px solid rgba(255,200,100,0.4);
+        }
+
+        footer {
+            position: fixed;
+            bottom: 12px;
+            font-size: 0.6rem;
+            color: rgba(255,255,255,0.4);
+            text-align: center;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+
+<div class="radio">
+    <div class="animated-title">
+        <h1>MurinoFM</h1>
+    </div>
+
+    <div class="vinyl" id="vinylCircle">
+        <div class="disc" id="rotatingDisc">
+            <div class="center-img" id="centerImage"></div>
+        </div>
+        <div class="volume-side">
+            <span>🔊</span>
+            <input type="range" id="volumeSlider" orient="vertical" min="0" max="100" value="70">
+        </div>
+    </div>
+
+    <div class="live-dot" id="liveIndicator">
+        <div class="dot" id="liveDot"></div>
+        <span id="liveLabel">LIVE</span>
+    </div>
+
+    <!-- ДВЕ ЯРКИЕ КНОПКИ -->
+    <div class="buttons-group">
+        <button class="action-btn" id="feedbackBtn">📢 Баг / Реклама / Предложить песню</button>
+        <button class="action-btn" id="channelBtn">📡 Наш канал</button>
+    </div>
+
+    <footer>MurinoFM</footer>
+</div>
+
+<div class="start-hint" id="startHint">🔊 Нажми на чёрный круг, чтобы включить звук</div>
+
+<script>
+    // ========================
+    // 4 ТРЕКА (бесконечный цикл)
+    // ========================
+    const TRACKS = [
+        { name: "Трек 1", src: "track1.mp3" },
+        { name: "Трек 2", src: "track2.mp3" },
+        { name: "Трек 3", src: "track3.mp3" },
+        { name: "Трек 4", src: "track4.mp3" }
+    ];
+
+    document.getElementById('centerImage').style.backgroundImage = "url('logo.jpg')";
+
+    let audio = new Audio();
+    let currentTrackIndex = 0;
+    let isSoundOn = false;
+    let userVolume = 0.7;
+    let isAudioStarted = false;
+    
+    const vinylCircle = document.getElementById('vinylCircle');
+    const rotatingDisc = document.getElementById('rotatingDisc');
+    const volumeSlider = document.getElementById('volumeSlider');
+    const liveDot = document.getElementById('liveDot');
+    const liveLabel = document.getElementById('liveLabel');
+    const startHint = document.getElementById('startHint');
+    const feedbackBtn = document.getElementById('feedbackBtn');
+    const channelBtn = document.getElementById('channelBtn');
+
+    function loadTrack(index) {
+        currentTrackIndex = index % TRACKS.length;
+        audio.src = TRACKS[currentTrackIndex].src;
+        audio.load();
+    }
+
+    function applyVolume() {
+        if (isSoundOn && isAudioStarted) {
+            audio.volume = userVolume;
+        } else {
+            audio.volume = 0;
+        }
+    }
+
+    function toggleMute() {
+        if (!isAudioStarted) {
+            startRadio();
+            return;
+        }
+        
+        if (isSoundOn) {
+            isSoundOn = false;
+            audio.volume = 0;
+            liveDot.classList.add('muted');
+            liveLabel.innerText = "MUTE";
+        } else {
+            isSoundOn = true;
+            audio.volume = userVolume;
+            liveDot.classList.remove('muted');
+            liveLabel.innerText = "LIVE";
+        }
+    }
+    
+    function startRadio() {
+        if (isAudioStarted) return;
+        
+        isAudioStarted = true;
+        isSoundOn = true;
+        
+        loadTrack(0);
+        audio.volume = userVolume;
+        
+        audio.play().then(() => {
+            liveDot.classList.remove('muted');
+            liveLabel.innerText = "LIVE";
+            rotatingDisc.classList.add('rotating');
+            
+            startHint.style.opacity = "0";
+            setTimeout(() => {
+                startHint.style.display = "none";
+            }, 1000);
+        }).catch(error => {
+            startHint.innerText = "⚠️ Нажми ещё раз (разреши звук)";
+            isSoundOn = false;
+            isAudioStarted = false;
+        });
+    }
+
+    function onTrackEnded() {
+        if (!isAudioStarted) return;
+        
+        currentTrackIndex = (currentTrackIndex + 1) % TRACKS.length;
+        audio.src = TRACKS[currentTrackIndex].src;
+        audio.load();
+        
+        const wasSoundOn = isSoundOn;
+        
+        audio.play().then(() => {
+            if (wasSoundOn) {
+                audio.volume = userVolume;
+            } else {
+                audio.volume = 0;
+            }
+        }).catch(e => console.warn("auto next error", e));
+    }
+
+    function initRadio() {
+        loadTrack(0);
+        audio.loop = false;
+        userVolume = volumeSlider.value / 100;
+        audio.volume = 0;
+        audio.addEventListener('ended', onTrackEnded);
+        rotatingDisc.classList.add('rotating');
+    }
+    
+    function setupVolumeControl() {
+        volumeSlider.addEventListener('input', (e) => {
+            userVolume = e.target.value / 100;
+            if (isSoundOn && isAudioStarted) {
+                audio.volume = userVolume;
+            }
+        });
+    }
+    
+    // Кнопка "Баг / Реклама / Предложить песню"
+    feedbackBtn.addEventListener('click', () => {
+        window.open('https://t.me/bolfur', '_blank');
+    });
+    
+    // Новая кнопка "Наш канал"
+    channelBtn.addEventListener('click', () => {
+        window.open('https://t.me/murinoradio', '_blank');
+    });
+    
+    vinylCircle.addEventListener('click', (e) => {
+        if (e.target === volumeSlider || volumeSlider.contains(e.target)) return;
+        toggleMute();
+    });
+    
+    volumeSlider.addEventListener('click', (e) => {
+        e.stopPropagation();
+    });
+    
+    initRadio();
+    setupVolumeControl();
+    
+    audio.addEventListener('error', () => {
+        if (!isAudioStarted) return;
+        currentTrackIndex = (currentTrackIndex + 1) % TRACKS.length;
+        audio.src = TRACKS[currentTrackIndex].src;
+        audio.load();
+        if (isSoundOn) audio.play().catch(() => {});
+        applyVolume();
+    });
+</script>
+</body>
+</html>
