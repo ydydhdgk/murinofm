@@ -1,9 +1,15 @@
+
 <!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>MurinoFM</title>
+    
+    <!-- ИКОНКА ДЛЯ ВКЛАДКИ (favicon) -->
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="shortcut icon" href="favicon.png">
+    
     <style>
         * {
             margin: 0;
@@ -223,9 +229,10 @@
             transform: scale(0.98);
         }
 
+        /* ПОДСКАЗКА — ПОДНЯТА ВВЕРХ, ЧТОБЫ НЕ ПЕРЕКРЫВАТЬ КНОПКИ */
         .start-hint {
             position: fixed;
-            bottom: 80px;
+            top: 20px;
             left: 50%;
             transform: translateX(-50%);
             background: rgba(0,0,0,0.85);
@@ -238,6 +245,7 @@
             white-space: nowrap;
             font-weight: 500;
             border: 1px solid rgba(255,200,100,0.4);
+            z-index: 100;
         }
 
         footer {
@@ -405,12 +413,10 @@
         });
     }
     
-    // Кнопка "Баг / Реклама / Предложить песню"
     feedbackBtn.addEventListener('click', () => {
         window.open('https://t.me/bolfur', '_blank');
     });
     
-    // Новая кнопка "Наш канал"
     channelBtn.addEventListener('click', () => {
         window.open('https://t.me/murinoradio', '_blank');
     });
